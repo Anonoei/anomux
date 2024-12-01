@@ -1,0 +1,62 @@
+#!/bin/bash
+
+function _extra_anomux_help {
+    echo "Usage:  anonoei/anomux COMMAND"
+    echo ""
+    echo "Helper for AnoMUX"
+    echo ""
+    echo "Commands:"
+    local ash_arg=(
+        "h|help;show_this_message"
+        "i|install;install_AnoMUX"
+        "U|uninstall;uninstall_AnoMUX"
+        "u|update;update_AnoMUX"
+        )
+    _ash_fmt_help_items "${ash_arg[@]}"
+    echo ""
+}
+
+function _extra_anomux_install {
+    $SHELL <(curl -sS https://raw.githubusercontent.com/anonoei/anomux/main/install.sh) $*
+}
+
+function _extra_anomux_uninstall {
+    echo "Uninstalling..."
+    rm -rf "${HOME}/.config/tmux"
+    echo "AnoMUX has been uninstalled!"
+}
+
+function _extra_anomux_update {
+    old_path=$PWD
+    cd ${HOME}/.config/tmux
+    if [[ ! -z $(git fetch --dry-run) ]]; then
+        git pull
+    fi
+
+    cd $old_path
+}
+
+if [[ $# -eq 0 ]]; then
+    _extra_anomux_help
+    return
+fi
+
+ASH_CMD=$1
+shift
+case $ASH_CMD in
+    h|help)
+        _extra_anomux_help $*
+        ;;
+    i|install)
+        _extra_anomux_install $*
+        ;;
+    U|uninstall)
+        _extra_anomux_uninstall $*
+        ;;
+    u|update)
+        _extra_anomux_update $*
+        ;;
+    *)
+        _ash_fmt_help_unk "anomux" $ASH_CMD $*
+        ;;
+esac
